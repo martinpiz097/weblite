@@ -1,34 +1,28 @@
 package org.mpizlibs.weblite.net;
 
 import io.undertow.Undertow;
-import org.mpizlibs.weblite.exceptions.InsufficientConnectionsException;
 import org.mpizlibs.weblite.exceptions.ServerNotInitializedException;
 import org.mpizlibs.weblite.exceptions.WebLiteException;
-import org.mpizlibs.weblite.sys.WebConnection;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import org.mpizlibs.weblite.sys.WebConfiguration;
 
 public class WebService extends Thread {
     private Undertow server;
-    private ArrayList<WebConnection> listConnections;
+    private WebConfiguration connection;
     private boolean connected;
 
     public WebService() {
-        listConnections = new ArrayList<>();
         connected = false;
     }
 
-    public WebService(WebConnection connection) {
+    public WebService(WebConfiguration configuration) {
         this();
         try {
-            initialize(connection);
+            initialize(configuration);
         } catch (WebLiteException e) {
         }
     }
 
-    public void initialize(WebConnection connection) throws WebLiteException {
+    public void initialize(WebConfiguration connection) throws WebLiteException {
         if (connection == null) {
             throw new NullPointerException("Web connection is null");
         }
@@ -42,34 +36,15 @@ public class WebService extends Thread {
                 .build();
     }
 
-    public void initialize(WebConnection... connections) throws InsufficientConnectionsException {
-        initialize(Arrays.asList(connections));
-    }
-
-    public void initialize(List<WebConnection> listConnections) throws InsufficientConnectionsException {
-        if (listConnections.isEmpty()) {
-            throw new InsufficientConnectionsException();
-        }
-        Undertow.Builder builder = Undertow.builder();
-
-        for (WebConnection connection : listConnections) {
-            builder.addHttpListener(connection.getPort(),
-                    connection.getRemoteHost(),
-                    connection::receivRequest);
-        }
-        this.listConnections.addAll(listConnections);
-        server = builder.build();
-    }
-
     public void shutdown() {
         server.stop();
         server = null;
-        listConnections.clear();
+        connection = null;
         connected = false;
     }
 
-    public ArrayList<WebConnection> getListConnections() {
-        return listConnections;
+    public WebConfiguration getConnection() {
+        return connection;
     }
 
     public boolean isConnected() {

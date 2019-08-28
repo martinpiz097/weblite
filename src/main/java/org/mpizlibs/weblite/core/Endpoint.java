@@ -1,6 +1,9 @@
 package org.mpizlibs.weblite.core;
 
+import io.undertow.server.HttpServerExchange;
+import org.apache.http.HttpStatus;
 import org.apache.http.entity.ContentType;
+import org.mpizlibs.weblite.exceptions.InvalidEndpointException;
 
 import java.util.ArrayList;
 
@@ -10,22 +13,24 @@ public class Endpoint {
     private final String contentType;
 
     private Endpoint parent;
-    private final ArrayList<Endpoint> listEndpoints;
+    private final ArrayList<Endpoint> listChilds;
 
-    public Endpoint(String method, String path, String contentType) {
-        this(method, path, contentType, null);
+    private final EndpointCallback callback;
+
+    private Endpoint finded;
+
+    public Endpoint(String method, String path, String contentType, EndpointCallback callback) {
+        this(method, path, contentType, null, callback);
     }
 
-    public Endpoint(String method, String path, ContentType contentType) {
-        this(method, path, contentType, null);
-    }
-
-    public Endpoint(String method, String path, String contentType, Endpoint parent) {
+    public Endpoint(String method, String path, String contentType,
+                    Endpoint parent, EndpointCallback callback) {
         this.method = method.toUpperCase().trim();
         this.path = path;
         this.parent = parent;
         this.contentType = contentType;
-        listEndpoints = new ArrayList<>();
+        listChilds = new ArrayList<>();
+        this.callback = callback;
 
         normalizePath();
     }
@@ -35,9 +40,27 @@ public class Endpoint {
         this.path = path;
         this.parent = parent;
         this.contentType = contentType.getMimeType();
-        listEndpoints = new ArrayList<>();
-
+        listChilds = new ArrayList<>();
+        callback = null;
         normalizePath();
+    }
+
+    public Endpoint(String method, String path, ContentType contentType, EndpointCallback callback) {
+        this.method = method.toUpperCase().trim();
+        this.path = path;
+        this.parent = null;
+        this.contentType = contentType.getMimeType();
+        listChilds = new ArrayList<>();
+        this.callback = callback;
+        normalizePath();
+    }
+
+    public Endpoint getFinded() {
+        return finded;
+    }
+
+    public void saveFinded(Endpoint finded) {
+        this.finded = finded;
     }
 
     private void normalizePath() {
@@ -46,7 +69,7 @@ public class Endpoint {
     }
 
     public int getChildCount() {
-        return listEndpoints.size();
+        return listChilds.size();
     }
 
     public boolean hasChilds() {
@@ -56,20 +79,20 @@ public class Endpoint {
     public boolean addChildEndpoint(Endpoint endpoint) {
         if (endpoint == null)
             throw new NullPointerException("Endpoint param is null");
-        for (int i = 0; i < listEndpoints.size(); i++) {
-            if (listEndpoints.get(i).getPath().equals(endpoint.getPath())) {
+        for (int i = 0; i < listChilds.size(); i++) {
+            if (listChilds.get(i).getPath().equals(endpoint.getPath())) {
                 return false;
             }
         }
         endpoint.setParent(this);
-        listEndpoints.add(endpoint);
+        listChilds.add(endpoint);
         return true;
     }
 
     public boolean removeEndpoint(String path) {
-        for (int i = 0; i < listEndpoints.size(); i++) {
-            if (listEndpoints.get(i).getPath().equals(path)) {
-                listEndpoints.remove(i);
+        for (int i = 0; i < listChilds.size(); i++) {
+            if (listChilds.get(i).getPath().equals(path)) {
+                listChilds.remove(i);
                 return true;
             }
         }
@@ -124,7 +147,20 @@ public class Endpoint {
         return this.method.equals(method);
     }
 
-    public Endpoint findByPath(String path) {
+    public boolean isEqualsPath(String path) {
+        String fullPath = getFullPath();
+        if (path.endsWith("/") && fullPath.length() > 1) {
+            fullPath = fullPath.concat("/");
+        }
+
+        else if (!path.endsWith("/") && fullPath.endsWith("/")) {
+            path = path.concat("/");
+        }
+
+        return fullPath.equals(path);
+    }
+
+    public Endpoint findByPathRecursive(String path) {
         String fullPath = getFullPath();
 
         // si el parametro termina en / y el path actual
@@ -144,8 +180,8 @@ public class Endpoint {
             return this;
         else if (hasChilds()) {
             Endpoint finded = null;
-            for (Endpoint child : listEndpoints) {
-                finded = child.findByPath(path);
+            for (Endpoint child : listChilds) {
+                finded = child.findByPathRecursive(path);
                 if (finded != null) {
                     break;
                 }
@@ -156,8 +192,15 @@ public class Endpoint {
             return null;
     }
 
-    public ArrayList<Endpoint> getListEndpoints() {
-        return listEndpoints;
+    public ArrayList<Endpoint> getListChilds() {
+        return listChilds;
+    }
+
+    public void execute(HttpServerExchange exchange) {
+        if (callback == null) {
+            throw new InvalidEndpointException(path);
+        }
+        callback.onRequest(exchange, this);
     }
 
 }
