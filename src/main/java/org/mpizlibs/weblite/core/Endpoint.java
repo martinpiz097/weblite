@@ -4,6 +4,7 @@ import io.undertow.server.HttpServerExchange;
 import org.apache.http.HttpStatus;
 import org.apache.http.entity.ContentType;
 import org.mpizlibs.weblite.exceptions.InvalidEndpointException;
+import org.mpizlibs.weblite.http.HttpMethod;
 
 import java.util.ArrayList;
 
@@ -52,6 +53,11 @@ public class Endpoint {
         this.contentType = contentType.getMimeType();
         listChilds = new ArrayList<>();
         this.callback = callback;
+        normalizePath();
+    }
+
+    public Endpoint(String path, ContentType contentType, EndpointCallback callback) {
+        this(HttpMethod.GET, path, contentType, callback);
         normalizePath();
     }
 

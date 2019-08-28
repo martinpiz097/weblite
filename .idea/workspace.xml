@@ -2,12 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="7f1cdab3-79f5-487a-9272-8de515de2adc" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/mpizlibs/weblite/core/Connectable.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mpizlibs/weblite/core/WebConfigurationCallback.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CHANGELOG.md" beforeDir="false" afterPath="$PROJECT_DIR$/CHANGELOG.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/mpizlibs/weblite/core/Endpoint.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mpizlibs/weblite/core/Endpoint.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/mpizlibs/weblite/net/WebService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mpizlibs/weblite/net/WebService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/mpizlibs/weblite/sys/WebConnection.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mpizlibs/weblite/sys/WebConfiguration.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/mpizlibs/weblite/core/EndpointCallback.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mpizlibs/weblite/core/EndpointCallback.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/mpizlibs/weblite/test/TestServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mpizlibs/weblite/test/TestServer.java" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />

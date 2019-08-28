@@ -3,3 +3,6 @@
 
 - 0.2
 	- Changes in arch
+
+- 0.2.1
+	- Aplicando pequeña estandarizacion
