@@ -3,7 +3,6 @@ package org.mpizlibs.weblite.net;
 import io.undertow.Undertow;
 import org.mpizlibs.weblite.exceptions.ServerNotInitializedException;
 import org.mpizlibs.weblite.exceptions.WebLiteException;
-import org.mpizlibs.weblite.sys.WebConfiguration;
 
 public class WebService extends Thread {
     private Undertow server;
@@ -22,17 +21,18 @@ public class WebService extends Thread {
         }
     }
 
-    public void initialize(WebConfiguration connection) throws WebLiteException {
-        if (connection == null) {
-            throw new NullPointerException("Web connection is null");
+    public void initialize(WebConfiguration configuration) throws WebLiteException {
+        if (configuration == null) {
+            throw new NullPointerException("Web configuration is null");
         }
         if (connected) {
             throw new WebLiteException();
         }
         server = Undertow.builder()
-                .addHttpListener(connection.getPort(),
-                        connection.getRemoteHost(),
-                        connection::receivRequest)
+                .addHttpListener(configuration.getPort(),
+                        configuration.getRemoteHost(),
+                        configuration::execute)
+                .setBufferSize(10240)
                 .build();
     }
 

@@ -1,17 +1,15 @@
 package org.mpizlibs.weblite.test;
+import io.undertow.io.Receiver;
 import io.undertow.server.HttpServerExchange;
-import org.apache.http.HttpStatus;
 import org.apache.http.entity.ContentType;
-import org.mpizlibs.weblite.core.Endpoint;
-import org.mpizlibs.weblite.core.EndpointCallback;
 import org.mpizlibs.weblite.exceptions.WebLiteException;
-import org.mpizlibs.weblite.http.HttpMethod;
+import org.mpizlibs.weblite.endpoint.ActionableEndpoint;
+import org.mpizlibs.weblite.endpoint.ParentEndpoint;
 import org.mpizlibs.weblite.net.WebService;
-import org.mpizlibs.weblite.sys.WebConfiguration;
+import org.mpizlibs.weblite.net.WebConfiguration;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.logging.Logger;
@@ -73,32 +71,28 @@ public class TestServer {
 
     private static void startServer() {
         WebService service = new WebService();
-
-        EndpointCallback callback = new EndpointCallback() {
+        ParentEndpoint parentEndpoint = new ParentEndpoint("/");
+        ActionableEndpoint endpoint = new ActionableEndpoint(
+                "/test",
+                ContentType.TEXT_PLAIN,
+                parentEndpoint
+        ) {
             @Override
-            public boolean isValidRequest(HttpServerExchange exchange, Endpoint endpoint) {
-                Endpoint finded = findCalledEndpoint(exchange, endpoint);
-
-                // falta verificar el content type
-
-                if (finded == null) {
-                    return false;
-                }
-                else {
-                    return finded.getMethod().equalsIgnoreCase(
-                            exchange.getRequestMethod().toString());
-                }
+            public void onRequest(HttpServerExchange exchange, ActionableEndpoint actionable) {
+                Receiver receiver = exchange.getRequestReceiver();
+                receiver.receiveFullString((httpServerExchange, message) -> {
+                    sendResponse(httpServerExchange, "Data received: "+message);
+                });
             }
 
             @Override
-            public void onSucess(HttpServerExchange exchange, Endpoint endpoint) {
-                sendResponse(exchange, "Sucess in path "+endpoint.getFullPath()+"!");
+            public void onSucess(HttpServerExchange exchange, ActionableEndpoint actionable) {
+
             }
 
             @Override
-            public void onError(HttpServerExchange exchange, Endpoint endpoint) {
-                sendResponse(exchange, "Error "+exchange.getStatusCode()+
-                        " in path "+exchange.getRequestPath()+"!");
+            public void onError(HttpServerExchange exchange, ActionableEndpoint actionable) {
+
             }
 
             @Override
@@ -111,20 +105,9 @@ public class TestServer {
                 return ContentType.TEXT_PLAIN;
             }
         };
-        Endpoint endpoint = new Endpoint(HttpMethod.GET,
-                "/", ContentType.TEXT_PLAIN, callback);
 
-        endpoint.addChildEndpoint(new Endpoint(
-                HttpMethod.GET, "/add", ContentType.TEXT_PLAIN, callback
-        ));
-        endpoint.addChildEndpoint(new Endpoint("/del", ContentType.TEXT_PLAIN, callback));
-
-        WebConfiguration configuration = new WebConfiguration("0.0.0.0", 8080, endpoint) {
-            @Override
-            public void receivRequest(HttpServerExchange exchange) {
-                getEndpoint().execute(exchange);
-            }
-        };
+        parentEndpoint.addChild(endpoint);
+        WebConfiguration configuration = new WebConfiguration("0.0.0.0", 8080, parentEndpoint);
 
         try {
             service.initialize(configuration);

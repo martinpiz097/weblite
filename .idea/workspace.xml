@@ -2,11 +2,19 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="7f1cdab3-79f5-487a-9272-8de515de2adc" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/mpizlibs/weblite/endpoint/Actionable.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/mpizlibs/weblite/endpoint/ParentEndpoint.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/mpizlibs/weblite/net/WebConfiguration.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CHANGELOG.md" beforeDir="false" afterPath="$PROJECT_DIR$/CHANGELOG.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/mpizlibs/weblite/core/Endpoint.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mpizlibs/weblite/core/Endpoint.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/mpizlibs/weblite/core/EndpointCallback.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mpizlibs/weblite/core/EndpointCallback.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/mpizlibs/weblite/core/Endpoint.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/mpizlibs/weblite/core/EndpointCallback.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/mpizlibs/weblite/core/WebConfigurationCallback.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mpizlibs/weblite/net/HttpExecutable.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/mpizlibs/weblite/core/WebRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/mpizlibs/weblite/http/ResponserManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mpizlibs/weblite/http/ResponseManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/mpizlibs/weblite/http/ResponserManagerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mpizlibs/weblite/http/ResponseManagerImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/mpizlibs/weblite/net/WebService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mpizlibs/weblite/net/WebService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/mpizlibs/weblite/sys/WebConfiguration.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/mpizlibs/weblite/test/TestServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/mpizlibs/weblite/test/TestServer.java" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />

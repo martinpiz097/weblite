@@ -6,3 +6,6 @@
 
 - 0.2.1
 	- Aplicando pequeña estandarizacion
+
+- 0.3
+	- Modificacion en arquitectura de clases para la creacion de endpoints
