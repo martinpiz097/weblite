@@ -21,4 +21,10 @@ public interface Actionable {
         responseSender.send(response.toString());
         exchange.endExchange();
     }
+
+    public default void sendResponse(HttpServerExchange exchange,
+                                     int statusCode, Object response) {
+        exchange.setStatusCode(statusCode);
+        sendResponse(exchange, response);
+    }
 }

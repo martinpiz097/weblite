@@ -1,12 +1,15 @@
 package org.mpizlibs.weblite.net;
 
 import io.undertow.Undertow;
+import io.undertow.server.RoutingHandler;
 import org.mpizlibs.weblite.exceptions.ServerNotInitializedException;
 import org.mpizlibs.weblite.exceptions.WebLiteException;
 
+import java.util.concurrent.Exchanger;
+
 public class WebService extends Thread {
     private Undertow server;
-    private WebConfiguration connection;
+    private WebConfiguration configuration;
     private boolean connected;
 
     public WebService() {
@@ -18,6 +21,16 @@ public class WebService extends Thread {
         try {
             initialize(configuration);
         } catch (WebLiteException e) {
+        }
+    }
+
+    public WebService(String remoteHost, int port) {
+        this();
+        configuration = new WebConfiguration(remoteHost, port);
+        try {
+            initialize(configuration);
+        } catch (WebLiteException e) {
+            e.printStackTrace();
         }
     }
 
@@ -39,12 +52,12 @@ public class WebService extends Thread {
     public void shutdown() {
         server.stop();
         server = null;
-        connection = null;
+        configuration = null;
         connected = false;
     }
 
-    public WebConfiguration getConnection() {
-        return connection;
+    public WebConfiguration getConfiguration() {
+        return configuration;
     }
 
     public boolean isConnected() {
@@ -60,7 +73,7 @@ public class WebService extends Thread {
 
         while (connected) {
             try {
-                Thread.sleep(100);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

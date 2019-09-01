@@ -1,0 +1,30 @@
+Weblite
+
+Time in millis: 46
+Time in millis: 67
+Time in millis: 58
+Time in millis: 48
+Time in millis: 91
+Time in millis: 56
+Time in millis: 49
+Time in millis: 39
+Time in millis: 78
+Time in millis: 44
+
+Promedio: 57,6
+
+------------------------------------------
+
+Spring Boot
+Time in millis: 39
+Time in millis: 76
+Time in millis: 103
+Time in millis: 50
+Time in millis: 94
+Time in millis: 72
+Time in millis: 51
+Time in millis: 55
+Time in millis: 51
+Time in millis: 58
+
+Promedio 64,9

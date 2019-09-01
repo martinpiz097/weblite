@@ -1,6 +1,7 @@
 package org.mpizlibs.weblite.test;
-import io.undertow.io.Receiver;
+
 import io.undertow.server.HttpServerExchange;
+import org.apache.http.HttpStatus;
 import org.apache.http.entity.ContentType;
 import org.mpizlibs.weblite.exceptions.WebLiteException;
 import org.mpizlibs.weblite.endpoint.ActionableEndpoint;
@@ -12,58 +13,70 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 
 public class TestServer {
 
     private static Logger logger = Logger.getLogger("TestServer");
+    private static final int SERVER_PORT = 8080;
 
-    public static void main(String[] args) throws IOException {
-        startServer();
-        //testParallelConsuming();
-    }
-
-    private static String getConsumeContent(URL url) throws IOException {
-        URLConnection urlConnection = url.openConnection();
-        urlConnection.setDoInput(true);
-        urlConnection.setDoOutput(true);
-
-        InputStream inputStream = urlConnection.getInputStream();
-
-        StringBuilder sbInput = new StringBuilder();
-
-        int read = 0;
-        while ((read = inputStream.read()) != -1) {
-            sbInput.append((char)read);
+    public static void main(String[] args) throws Exception {
+        if (args.length > 0) {
+            long start = System.currentTimeMillis();
+            testParallelConsuming();
+            long end = System.currentTimeMillis();
+            System.out.println("Time in millis: "+(end-start));
         }
-        return sbInput.toString();
+        else {
+            startServer();
+        }
     }
 
-    private static void testParallelConsuming() throws IOException {
-        for (int i = 0; i < 1000000; i++) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    URL url;
-                    String requestPath;
-                    try {
-                        requestPath = "/";
-                        url = new URL("http://localhost:8080"+requestPath);
-                        System.out.println("From "+requestPath + " " + getConsumeContent(url));
+    private static void testEmptyServer() {
+        WebService webService = new WebService("0.0.0.0", SERVER_PORT);
+        webService.start();
+    }
 
-                        requestPath = "/add";
-                        url = new URL("http://localhost:8080"+requestPath);
-                        System.out.println("From "+requestPath + " " + getConsumeContent(url));
+    private static String getConsumeContent(URL url) {
+        try {
+            URLConnection urlConnection = url.openConnection();
+            urlConnection.setDoInput(true);
+            urlConnection.setDoOutput(true);
 
-                        requestPath = "/del";
-                        url = new URL("http://localhost:8080"+requestPath);
-                        System.out.println("From "+requestPath + " " + getConsumeContent(url));
+            InputStream inputStream = urlConnection.getInputStream();
 
-                        System.out.println("------------------------------------");
+            StringBuilder sbInput = new StringBuilder();
 
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+            int read;
+            while ((read = inputStream.read()) != -1) {
+                sbInput.append((char)read);
+            }
+            return sbInput.toString();
+        } catch (IOException e) {
+            return e.toString();
+        }
+    }
+
+    private static void testParallelConsuming() {
+        final String[] response = new String[1];
+
+        for (int i = 0; i < 100000; i++) {
+            new Thread(() -> {
+                URL url;
+                String requestPath;
+                try {
+                    requestPath = "/";
+                    url = new URL("http://localhost:"+SERVER_PORT+requestPath);
+                    response[0] = getConsumeContent(url);
+                    //System.out.println("From "+requestPath + " " + response[0]);
+                    if (response[0].contains("refused"))
+                        System.out.println("Connection refused!");
+                        System.exit(1);
+
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }).start();
         }
@@ -73,21 +86,19 @@ public class TestServer {
         WebService service = new WebService();
         ParentEndpoint parentEndpoint = new ParentEndpoint("/");
         ActionableEndpoint endpoint = new ActionableEndpoint(
-                "/test",
+                "",
                 ContentType.TEXT_PLAIN,
                 parentEndpoint
         ) {
             @Override
             public void onRequest(HttpServerExchange exchange, ActionableEndpoint actionable) {
-                Receiver receiver = exchange.getRequestReceiver();
-                receiver.receiveFullString((httpServerExchange, message) -> {
-                    sendResponse(httpServerExchange, "Data received: "+message);
-                });
+                onSucess(exchange, actionable);
             }
 
             @Override
             public void onSucess(HttpServerExchange exchange, ActionableEndpoint actionable) {
-
+                exchange.setStatusCode(HttpStatus.SC_OK);
+                sendResponse(exchange, "Hello World");
             }
 
             @Override
@@ -107,7 +118,8 @@ public class TestServer {
         };
 
         parentEndpoint.addChild(endpoint);
-        WebConfiguration configuration = new WebConfiguration("0.0.0.0", 8080, parentEndpoint);
+        WebConfiguration configuration = new WebConfiguration(
+                "0.0.0.0", SERVER_PORT, parentEndpoint);
 
         try {
             service.initialize(configuration);

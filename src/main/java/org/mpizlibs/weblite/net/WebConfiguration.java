@@ -30,15 +30,21 @@ public class WebConfiguration implements Executable {
         this.listParents = listParents;
     }
 
-    public String getRemoteHost() {
+    public WebConfiguration(String remoteHost, int port) {
+        this.remoteHost = remoteHost;
+        this.port = port;
+        listParents = new ArrayList<>();
+    }
+    
+    public synchronized String getRemoteHost() {
         return remoteHost;
     }
 
-    public int getPort() {
+    public synchronized int getPort() {
         return port;
     }
 
-    public ParentEndpoint findByPath(String path) {
+    public synchronized ParentEndpoint findByPath(String path) {
         return listParents
                 .parallelStream()
                 .filter(parent->parent.getPath().startsWith(path))
@@ -46,12 +52,20 @@ public class WebConfiguration implements Executable {
                 .orElse(null);
     }
 
-    public ArrayList<ParentEndpoint> getListParents() {
+    public synchronized void addParent(ParentEndpoint parentEndpoint) {
+        if (!listParents
+                .parallelStream()
+                .anyMatch(p->p.getPath().equals(parentEndpoint.getPath()))) {
+            listParents.add(parentEndpoint);
+        }
+    }
+
+    public synchronized ArrayList<ParentEndpoint> getListParents() {
         return listParents;
     }
 
     @Override
-    public int execute(HttpServerExchange exchange) {
+    public synchronized int execute(HttpServerExchange exchange) {
         String requestPath = exchange.getRequestPath();
         String requestMethod = exchange.getRequestMethod().toString();
 

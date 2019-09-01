@@ -9,3 +9,7 @@
 
 - 0.3
 	- Modificacion en arquitectura de clases para la creacion de endpoints
+
+- 0.4-Beta
+	- Ambas clases endpoint extienden de una comun
+	- Los endpoints ahora son compatibles con peticiones multihilo

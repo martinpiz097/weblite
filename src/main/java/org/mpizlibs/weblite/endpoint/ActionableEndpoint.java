@@ -4,22 +4,18 @@ import io.undertow.server.HttpServerExchange;
 import org.apache.http.entity.ContentType;
 import org.mpizlibs.weblite.http.HttpMethod;
 
-public abstract class ActionableEndpoint implements Actionable {
+public abstract class ActionableEndpoint extends Endpoint implements Actionable {
     protected final String method;
-    protected String path;
     protected final String contentType;
 
     protected ParentEndpoint parent;
 
     public ActionableEndpoint(String method, String path,
                               String contentType, ParentEndpoint parent) {
-
+        super(path);
         this.method = method;
-        this.path = path;
         this.contentType = contentType;
         this.parent = parent;
-
-        normalizePath();
     }
 
     public ActionableEndpoint(String path, String contentType, ParentEndpoint parent) {
@@ -33,11 +29,6 @@ public abstract class ActionableEndpoint implements Actionable {
 
     public ActionableEndpoint(String path, ContentType contentType, ParentEndpoint parent) {
         this(HttpMethod.GET, path, contentType, parent);
-    }
-
-    protected void normalizePath() {
-        if (path.length() > 1 && path.endsWith("/"))
-            path = path.substring(0, path.length()-1);
     }
 
     public String getMethod() {
@@ -103,6 +94,37 @@ public abstract class ActionableEndpoint implements Actionable {
 
     public void execute(HttpServerExchange exchange) {
         onRequest(exchange, this);
+    }
+
+    @Override
+    protected ActionableEndpoint clone() {
+        return new ActionableEndpoint(
+                method, path, contentType, parent) {
+            @Override
+            public void onRequest(HttpServerExchange exchange, ActionableEndpoint actionable) {
+                onRequest(exchange, actionable);
+            }
+
+            @Override
+            public void onSucess(HttpServerExchange exchange, ActionableEndpoint actionable) {
+                onSucess(exchange, actionable);
+            }
+
+            @Override
+            public void onError(HttpServerExchange exchange, ActionableEndpoint actionable) {
+                onError(exchange, actionable);
+            }
+
+            @Override
+            public ContentType getRequestContentType() {
+                return getRequestContentType();
+            }
+
+            @Override
+            public ContentType getResponseContentType() {
+                return getResponseContentType();
+            }
+        };
     }
 
 }
